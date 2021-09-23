@@ -3,6 +3,7 @@ This repo contains the analytic work for the Data Science for All: Women project
 * Anna Vasylytsya
 * Asma Sadia
 * Christina Brady
+* Minjue Wu   
 * Mythreye Venkatesan
 * Shanti Agung
 * Veronica Gnaman
