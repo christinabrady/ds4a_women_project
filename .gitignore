@@ -1,0 +1,32 @@
+# Template for analysis repos
+
+# Windows System Files
+*.tmp
+
+# MacOS System Files
+.DS_Store
+.Rapp.history
+
+# Data Files
+.RData
+*.csv
+*.xlsx
+*.pdf
+*.zip
+
+# R files
+.Rhistory
+
+# Documentation/reports
+*.doc
+*.html
+*.png
+*.svg
+*.jpg
+*.jpeg
+
+# Folders
+_tmp
+tmp
+img
+report
