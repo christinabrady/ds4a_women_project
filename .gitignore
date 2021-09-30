@@ -30,3 +30,6 @@ _tmp
 tmp
 img
 report
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
