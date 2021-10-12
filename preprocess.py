@@ -6,7 +6,8 @@ Preprocess datasets
 
 """
 
-import pandas as pd 
+import pandas as pd
+from fuzzywuzzy import process 
 
 
 
@@ -166,5 +167,28 @@ def clean_states(restaurant_df, n = 5):
     df_clean = restaurant_df[restaurant_df['state'].isin(states_top_n)]
     
     return df_clean
+    
+
+
+def clean_city_names(restaurant_df, cutoff = 85):
+    """Fix inconsistency in city names
+    
+       restaurant_df: a data frame, from yelp business dataset
+       cutoff: an integer, cutoff for similarity scores
+       return a data frame
+    """
+
+    # create a list of correct city names
+    city_list = list(restaurant_df.groupby(["state", "city"], as_index = False) 
+                 .agg({'business_id': 'count'}).sort_values(by = 'business_id', ascending = False).head(5)['city'])
+                 
+    # iterate through the city_list
+    for city_name in city_list:
+        matches = process.extract(city_name, restaurant_df['city'], limit=len(restaurant_df.city))
+        for match in matches:
+            if match[1] >= cutoff:
+                restaurant_df.loc[restaurant_df['city'] == match[0]] = city_name
+          
+    return restaurant_df
 
  
