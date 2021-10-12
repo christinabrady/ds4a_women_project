@@ -8,28 +8,105 @@ Preprocess datasets
 
 import pandas as pd 
 
-def get_restaurants_usa(yelp_business):
+
+
+def gen_categories_hotels(yelp_business):
+    """Generate a list of categories that have keywords Hotels
+    
+       yelp_business: a pd dataframe of yelp business dataset
+       return a list 
+    """
+
+    # identify identify businesses that tag themselves in 'Hotels' category
+    include_categ_hotels = yelp_business['categories'].str.contains('Hotels', na = False)
+    
+    # extract those businesses
+    hotels_df = yelp_business[include_categ_hotels]
+    
+    # create a raw version of the list
+    hotels_categories_raw = []
+
+    for item in hotels_df['categories']:
+        my_list = item.split(',')
+        for element in my_list:
+            cleaned_element = element.strip()
+            if not(cleaned_element in hotels_categories_raw):
+                hotels_categories_raw.append(cleaned_element)
+
+    # create a clean version of the list
+    hotels_categories_clean = []
+
+    for item in hotels_categories_raw:
+        status = 'Hotels' in item
+        if status:
+            hotels_categories_clean.append(item)
+            
+    return hotels_categories_clean            
+    
+    
+    
+def check_categories(item, reference_list):
+    """Check whether a category is within a list
+    
+       item: a string that contains elements separated by commas
+       reference_list: a list containing reference elements
+       return a boolean
+    """
+    
+    a_list = item.split(',')
+    for item in a_list:
+        status = item.strip() in reference_list
+        if status == True:
+            return True
+    return False
+
+
+
+def get_restaurants_usa(yelp_business, category_tagged):
     """Extract restaurant business located in the U.S.
     
        yelp_business: a pd dataframe of yelp business dataset
+       category_tagged: a string, the name of a csv file that contains a list of categories
+       and an indicator whether the category will be excluded
        return a dataframe of restaurants in the U.S.
     """
     
-    # identify key words in 'categories'
-    include_restaurant = yelp_business['categories'].str.contains('Restaurants', na = False)
-    include_hotels = yelp_business['categories'].str.contains('Hotels', na = False)
+    # identify businesses that tag themselves in 'Restaurant' category
+    include_categ_restaurant = yelp_business['categories'].str.contains('Restaurants', na = False)
     
-    # extract restaurants from the business dataset
-    # include entries that has key word 'Restaurants' but exclude entries that has key word 'Hotels'
-    restaurants_df = yelp_business[include_restaurant & ~include_hotels]
+    # extract those businesses
+    restaurant_raw_df = yelp_business[include_categ_restaurant]
+    
+    # load the category file
+    category_df = pd.read_csv(category_tagged)
+    
+    # create a list of categories to exclude (note that 'Hotels' is not yet included)
+    category_excluded = list(category_df[category_df['exclude'] == 1]['category'])
+    
+    # get a list of categories with keywords 'Hotels'
+    hotel_categories = gen_categories_hotels(yelp_business)
+    
+    # append hotel categories to the list of categories to be excluded
+    for category in hotel_categories:
+        category_excluded.append(category)
+        
+    # create a new column to tag whether the businesses should be excluded
+    condition = restaurant_raw_df.categories.apply(check_categories, args = (category_excluded,))
+    restaurant_raw_df.loc[condition, 'not_restaurant'] = True
+    restaurant_raw_df.loc[~condition, 'not_restaurant'] = False
+    
+    # subset only for businesses that are not tagged as non-restaurants
+    restaurant_clean_by_categories = restaurant_raw_df[restaurant_raw_df['not_restaurant'] == False]
+    restaurants_df = restaurant_clean_by_categories.drop('not_restaurant', axis = 1)
 
     # non US states in Yelp business dataset
     non_us_states = ["ABE", "BC"]
     
-    # extract US restaruants
+    # extract US restaurants
     restaurants_us = restaurants_df[~restaurants_df['state'].isin(non_us_states)]
     
     return restaurants_us
+
 
 
 def get_top_cities(yelp_restaurants, n = 5):
