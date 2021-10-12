@@ -17,7 +17,7 @@ def gen_categories_hotels(yelp_business):
        return a list 
     """
 
-    # identify identify businesses that tag themselves in 'Hotels' category
+    # identify businesses that tag themselves in 'Hotels' category
     include_categ_hotels = yelp_business['categories'].str.contains('Hotels', na = False)
     
     # extract those businesses
