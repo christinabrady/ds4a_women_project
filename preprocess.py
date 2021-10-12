@@ -178,6 +178,9 @@ def clean_city_names(restaurant_df, cutoff = 85):
        return a data frame
     """
 
+    # city name in uppercase
+    restaurant_df['city'] = restaurant_df['city'].str.upper()
+    
     # create a list of correct city names
     city_list = list(restaurant_df.groupby(["state", "city"], as_index = False) 
                  .agg({'business_id': 'count'}).sort_values(by = 'business_id', ascending = False).head(5)['city'])
@@ -187,7 +190,7 @@ def clean_city_names(restaurant_df, cutoff = 85):
         matches = process.extract(city_name, restaurant_df['city'], limit=len(restaurant_df.city))
         for match in matches:
             if match[1] >= cutoff:
-                restaurant_df.loc[restaurant_df['city'] == match[0]] = city_name
+                restaurant_df.loc[restaurant_df['city'] == match[0], 'city'] = city_name
           
     return restaurant_df
 
