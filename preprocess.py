@@ -146,4 +146,25 @@ def get_ids_reviews_pre_covid(yelp_reviews):
     # for this filtered reviews, get their business_ids
     ids_reviews_pre_covid = filtered_df.drop_duplicates(subset = 'business_id')[['business_id']]
    
-    return ids_reviews_pre_covid 
+    return ids_reviews_pre_covid
+    
+
+
+def clean_states(restaurant_df, n = 5):
+    """Trim out restaurants not located in the city-and-state of top n cities
+    
+       restaurant_df: a data frame, from yelp business dataset
+       n: number of top city
+       return a data frame
+    """
+
+    # get the states of the top cities
+    states_all_sorted = restaurant_df.groupby("state", as_index = False).agg({'business_id': 'count'}).sort_values(by = "business_id", ascending = False)
+    states_top_n = list(states_all_sorted.iloc[0:n,0])
+    
+    # clean up states
+    df_clean = restaurant_df[restaurant_df['state'].isin(states_top_n)]
+    
+    return df_clean
+
+ 
