@@ -6,6 +6,7 @@
 # MacOS System Files
 .DS_Store
 .Rapp.history
+constants.py
 
 # Data Files
 .RData
