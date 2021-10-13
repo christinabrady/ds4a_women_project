@@ -1,3 +1,4 @@
 *.psd filter=lfs diff=lfs merge=lfs -text
 *.ipynb filter=lfs diff=lfs merge=lfs -text
 .ipynb filter=lfs diff=lfs merge=lfs -text
+team7_reviews_eda.ipynb filter=lfs diff=lfs merge=lfs -text
