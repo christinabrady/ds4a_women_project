@@ -56,8 +56,9 @@ def check_categories(item, reference_list):
     
     a_list = item.split(',')
     for item in a_list:
-        status = item.strip() in reference_list
-        if status == True:
+        item = item.strip()
+        item_in_list = item in reference_list
+        if item_in_list:
             return True
     return False
 
@@ -193,5 +194,68 @@ def clean_city_names(restaurant_df, cutoff = 85):
                 restaurant_df.loc[restaurant_df['city'] == match[0], 'city'] = city_name
           
     return restaurant_df
+
+
+
+def gen_category_dict(df, category_type):
+    """Create a dictionary of category mapping
+    
+       df: a data frame, containing pairs of category (original and mapped)
+       category_type: a string
+       return a dictionary
+    """
+    
+    a_dict = df.set_index('category').to_dict()[category_type]
+    return a_dict
+
+
+
+def map_category_type(item, reference_list, reference_dict):
+    """Map category according to category type
+    
+       item: a string that contains elements separated by commas
+       reference_list: a list containing categories of the category type
+       reference_dict: a dictionary containing category mapping
+       return a string, the first element that matches the category type
+    """
+
+    my_list = item.split(',')
+    for item in my_list:
+        item = item.strip()
+        is_category_type = item in reference_list
+        if is_category_type:
+            new_category = reference_dict[item]
+            return new_category
+    return None
+
+
+
+def gen_category_column(restaurant_df, mapping_csv, category_type):
+    """Generate a category column for a category type
+    
+       restaurant_df: a restaurant data frame from Yelp business dataset
+       mapping_csv: a string, containing the name of csv file that map categories
+       category_type: a string
+       return a data frame with a newly added category_type column
+    """
+    # upload the mapping_csv into a data frame
+    mapping_df = pd.read_csv(mapping_csv)
+    
+    # create a dictionary of mapping
+    category_dict = gen_category_dict(mapping_df, category_type)
+    
+    # create a list of categories that fall under the category type
+    category_list = list(mapping_df['category'])
+    
+    # create a new column to tag whether a business' categories include the category type
+    condition = restaurant_df.categories.apply(check_categories, args = (category_list,))
+    
+    # map the category
+    category_mapped = restaurant_df.categories.apply(map_category_type, args = (category_list, category_dict))
+    restaurant_df.loc[condition, category_type] = category_mapped
+    
+    return restaurant_df
+
+
 
  
