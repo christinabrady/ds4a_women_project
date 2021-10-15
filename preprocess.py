@@ -7,15 +7,13 @@ Preprocess datasets
 """
 
 import pandas as pd
-from fuzzywuzzy import process 
-
+from fuzzywuzzy import process
 
 
 def gen_categories_hotels(yelp_business):
     """Generate a list of categories that have keywords Hotels
-    
        yelp_business: a pd dataframe of yelp business dataset
-       return a list 
+       return a list
     """
 
     # identify businesses that tag themselves in 'Hotels' category
